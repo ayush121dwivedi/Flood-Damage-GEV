@@ -101,7 +101,7 @@ get_legend_plot <- function(p) {
       legend.justification = "center",
       legend.title = element_text(size = 12, face = "bold"),
       legend.text = element_text(size = 10),
-      legend.key.width = unit(3, "cm")   # stretch across maps
+      legend.key.width = unit(3, "cm")   
     )
   )
 }
@@ -112,12 +112,8 @@ map3 <- create_map("RR...Socio.Economic..Public.utilities", color_palette_upper,
 map4 <- create_map("RR.Climate.Change..Housing", color_palette_lower) + theme(legend.position = "bottom")
 map5 <- create_map("RR.Climate.Change..Crop", color_palette_lower) + theme(legend.position = "none")
 map6 <- create_map("RR.Climate.Change..Public.utilities", color_palette_lower) + theme(legend.position = "none")
-
-# ---- Extract legends ----
 legend_top <- get_legend_plot(map1)
 legend_bottom <- get_legend_plot(map4)
-
-# ---- Arrange top row with legend ----
 top_row <- plot_grid(
   map1 + theme(legend.position = "none"),
   map2,
@@ -126,8 +122,8 @@ top_row <- plot_grid(
   labels = c("A", "B", "C"),
   label_fontface = "bold",
   label_size = 16,
-  label_x = 0.05,   # shift labels right
-  label_y = 0.98    # shift labels down
+  label_x = 0.05,   
+  label_y = 0.98   
 )
 top_with_legend <- plot_grid(top_row, legend_top, ncol = 1, rel_heights = c(1, 0.12))
 bottom_row <- plot_grid(
@@ -138,8 +134,8 @@ bottom_row <- plot_grid(
   labels = c("D", "E", "F"),
   label_fontface = "bold",
   label_size = 16,
-  label_x = 0.05,   # shift labels right
-  label_y = 0.98    # shift labels down
+  label_x = 0.05, 
+  label_y = 0.98  
 )
 bottom_with_legend <- plot_grid(bottom_row, legend_bottom, ncol = 1, rel_heights = c(1, 0.12))
 final_maps <- plot_grid(
