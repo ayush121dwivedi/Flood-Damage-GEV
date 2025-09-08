@@ -35,7 +35,7 @@ data_long <- data_long %>%
   mutate(ST = reorder(ST, Damage, FUN = median))
 data_long$Variable <- factor(
   data_long$Variable,
-  levels = c("Total", "Crop", "Houses", "Util") # matches A, B, C, D
+  levels = c("Total", "Crop", "Houses", "Util") 
 )
 variable_labels <- c(
   "Total" = "A. Total Damage",
