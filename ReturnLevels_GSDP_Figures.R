@@ -6,7 +6,6 @@ library(ggrepel)
 library(purrr)
 library(viridis)
 
-# ---- Data ----
 states <- c(
   "ANDHRA PRADESH","ASSAM","BIHAR","GUJARAT","HARYANA","KARNATAKA",
   "KERALA","MADHYA PRADESH","MAHARASHTRA","ODISHA","PUNJAB","RAJASTHAN",
@@ -41,14 +40,11 @@ gsdp_values_million <- c(
 
 T_vals <- c(2, 20, 35, 50, 70, 100)
 
-# ---- GEV Function ----
 gev_return_level <- function(mu, sigma, xi, T) {
   p <- 1 - 1/T
   y <- -log(p)
   mu + (sigma/xi) * (y^(-xi) - 1)
 }
-
-# ---- Build Dataset ----
 df_all <- purrr::map_dfr(seq_along(states), function(i) {
   rl <- sapply(T_vals, function(T) gev_return_level(mu[i], sigma[i], xi[i], T))
   state_name <- str_to_title(states[i])
@@ -59,22 +55,17 @@ df_all <- purrr::map_dfr(seq_along(states), function(i) {
              ReturnPeriod = T_vals,
              Percent_GSDP = pct)
 })
-
-# ---- Color Palettes ----
 n_states <- length(unique(df_all$State))
-light_colors <- viridis(n_states, option = "C", begin = 0.3, end = 0.9) # softer for Panel 1
-dark_colors  <- viridis(n_states, option = "C", begin = 0, end = 0.7)   # darker for Panel 2
+light_colors <- viridis(n_states, option = "C", begin = 0.3, end = 0.9)
+dark_colors  <- viridis(n_states, option = "C", begin = 0, end = 0.7)   
 names(light_colors) <- names(dark_colors) <- sort(unique(df_all$State))
 
-# ---- Max & Min values for Panel 1 ----
 df_range <- df_all %>%
   group_by(ReturnPeriod) %>%
   summarise(
     ymin = min(Percent_GSDP, na.rm = TRUE),
     ymax = max(Percent_GSDP, na.rm = TRUE)
   )
-
-# ---- PANEL 1 ----
 panel1 <- ggplot(df_all) +
   geom_ribbon(aes(x = ReturnPeriod, ymin = 0, ymax = Percent_GSDP, fill = State),
               alpha = 0.65, color = NA) +
@@ -102,11 +93,8 @@ panel1 <- ggplot(df_all) +
     legend.position = "none",
     plot.margin = margin(2, 2, 2, 2)
   ) +
-  # Panel label "A" top-left corner
   annotate("text", x = min(T_vals), y = max(df_all$Percent_GSDP) * 1.05, label = "A",
            fontface = "bold", size = 6, hjust = 0, vjust = 1)
-
-# ---- PANEL 2 ----
 ranked_states <- df_all %>%
   filter(ReturnPeriod == 100) %>%
   arrange(desc(Percent_GSDP)) %>%
@@ -120,7 +108,7 @@ make_group_plot <- function(states_subset, label) {
     geom_text_repel(
       data = filter(dat, ReturnPeriod == max(ReturnPeriod)),
       aes(label = Abbr),
-      fontface = "bold",   # <-- Bold abbreviations here
+      fontface = "bold",  
       nudge_x = 5,
       segment.color = NA,
       size = 3.2,
@@ -137,7 +125,6 @@ make_group_plot <- function(states_subset, label) {
       legend.position = "none",
       plot.margin = margin(2, 2, 2, 2)
     ) +
-    # Add panel label in extreme top-left corner
     annotate("text", x = min(T_vals), y = max(dat$Percent_GSDP) * 1.05, label = label,
              fontface = "bold", size = 5, hjust = 0, vjust = 1)
   return(p)
@@ -149,8 +136,6 @@ panel2_combined <- plot_grid(
   make_group_plot(state_groups[[3]], "D"),
   ncol = 3
 )
-
-# ---- Combine with shared axes ----
 y_axis <- ggdraw() + draw_label("Damage (% of GSDP)", angle = 90, fontface = "bold", size = 14)
 x_axis <- ggdraw() + draw_label("Return Period (Years)", fontface = "bold", size = 14)
 
