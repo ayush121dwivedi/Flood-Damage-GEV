@@ -1,17 +1,12 @@
-# Load Required Libraries
 library(ggplot2)
 library(dplyr)
 library(readxl)
 library(tidyr)
 library(scales)
 library(stringr)
-library(ggh4x)  # Required for facet_wrap2
-
-# File Path
+library(ggh4x) 
 file_path <- "/Users/aayushdwivedi/Desktop/dissertation/Dissertation excel sheet/working old/CROP,UTIL,HOUSE -FAR, RR 95,75,55.xlsx"
 data <- read_excel(file_path, sheet = "Total")
-
-# Define time periods
 data <- data %>%
   mutate(Period = factor(
     case_when(
@@ -20,57 +15,37 @@ data <- data %>%
     ),
     levels = c("1961-1990", "1991-2020")
   ))
-
-# Remove NA values
 data <- data %>% filter(!is.na(Period))
-
-# Convert state names to Title Case
 data <- data %>%
   mutate(ST = str_to_title(tolower(ST)))
-
-# Select 15 states (excluding Sikkim)
 selected_states <- c("Andhra Pradesh", "Assam", "Bihar", "Gujarat", "Haryana", 
                      "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", 
                      "Odisha", "Punjab", "Rajasthan", "Tamil Nadu", 
                      "Uttar Pradesh", "West Bengal")
 
 data <- data %>% filter(ST %in% selected_states)
-
-# Pivot to long format
 data_long <- data %>%
   select(ST, Period, Util, Crop, Houses, Total) %>%
   pivot_longer(cols = c(Util, Crop, Houses, Total),
                names_to = "Variable", values_to = "Damage")
-
-# Keep only positive finite values
 data_long <- data_long %>%
   filter(is.finite(Damage), Damage > 0)
-
-# Reorder states within each facet
 data_long <- data_long %>%
   group_by(Variable) %>%
   mutate(ST = reorder(ST, Damage, FUN = median))
-
-# Ensure facet panels follow A, B, C, D order
 data_long$Variable <- factor(
   data_long$Variable,
   levels = c("Total", "Crop", "Houses", "Util") # matches A, B, C, D
 )
-
-# Custom facet labels
 variable_labels <- c(
   "Total" = "A. Total Damage",
   "Crop" = "B. Crop Damage",
   "Houses" = "C. Housing Damage",
   "Util" = "D. Public Utility Damage"
 )
-
-# Colors & line styles
 custom_colors <- c("1961-1990" = "#F5DEB3", "1991-2020" = "#8B0000")
 custom_border_colors <- c("1961-1990" = "black", "1991-2020" = "black")
 custom_border_types <- c("1961-1990" = "dashed", "1991-2020" = "solid")
-
-# Plot
 p <- ggplot(data_long, aes(x = ST, y = Damage, fill = Period,
                            color = Period, linetype = Period)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.85, width = 0.7,
@@ -83,7 +58,7 @@ p <- ggplot(data_long, aes(x = ST, y = Damage, fill = Period,
   ggh4x::facet_wrap2(
     ~ Variable,
     scales = "free_y",
-    ncol = 2,  # 2x2 layout
+    ncol = 2, 
     labeller = as_labeller(variable_labels),
     strip.position = "top",
     axes = "all"
@@ -104,7 +79,5 @@ p <- ggplot(data_long, aes(x = ST, y = Damage, fill = Period,
     strip.background = element_blank(),
     plot.margin = margin(10, 40, 10, 20)
   )
-
-# Save corrected order plot
 ggsave("/Users/aayushdwivedi/Desktop/dissertation/damage_boxplots_15states_corrected.png",
        p, width = 18, height = 12, dpi = 400, bg = "white")
