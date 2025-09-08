@@ -8,7 +8,7 @@ library(cowplot)
 library(grid)
 Sys.setenv(SHAPE_RESTORE_SHX = "YES")
 india_shapefile <- st_read("/Users/aayushdwivedi/Desktop/dissertation/Classwork_Data_1/ind_adm1.shp")
-print(colnames(india_shapefile))  # "ST_NM" = state names
+print(colnames(india_shapefile)) 
 data <- read.csv("/Users/aayushdwivedi/Desktop/dissertation/Dissertation excel sheet/working old/Scatterplot & RR/Scatter plot image - R/gis rr/cc_crop.csv")
 cap_at_100 <- function(x) ifelse(x > 100, 100, x)
 data <- data %>%
